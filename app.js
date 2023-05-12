@@ -7,37 +7,20 @@ function addfun() {
   const obtainemarks = document.getElementById("obtainedMarks").value;
   const student = { studentname, fathername, email, studentID, totalmarks, obtainemarks };
   console.log(student);
-
   // Create a new row
   const table = document.querySelector("table tbody");
   const row = document.createElement("tr");
-
-  // Create table cells
-  const nameCell = document.createElement("td");
-  nameCell.textContent = studentname;
-  const fatherCell = document.createElement("td");
-  fatherCell.textContent = fathername;
-  const emailCell = document.createElement("td");
-  emailCell.textContent = email;
-  const idCell = document.createElement("td");
-  idCell.textContent = studentID;
-  const totalMarksCell = document.createElement("td");
-  totalMarksCell.textContent = totalmarks;
-  const obtainedMarksCell = document.createElement("td");
-  obtainedMarksCell.textContent = obtainemarks;
-
-  row.appendChild(nameCell);
-  row.appendChild(fatherCell);
-  row.appendChild(emailCell);
-  row.appendChild(idCell);
-  row.appendChild(totalMarksCell);
-  row.appendChild(obtainedMarksCell);
+  // Create table cells using map function
+  const cellValues = [studentname, fathername, email, studentID, totalmarks, obtainemarks];
+  const cells = cellValues.map(value => {
+    const cell = document.createElement("td");
+    cell.textContent = value;
+    return cell;
+  });
+  // Append cells to the row
+  cells.map(cell => row.appendChild(cell));
   table.appendChild(row);
-
-  // Sort the table rows
-  sortTable();
 }
-
 const add = document.querySelector("form");
 add.addEventListener("submit", function (event) {
   event.preventDefault();
@@ -47,43 +30,48 @@ add.addEventListener("submit", function (event) {
 
 // Search function
 const searchBtn = document.getElementById("search-btn");
-const searchInput = document.getElementById("search");
-const table = document.querySelector("table"); // Caching the table element
-
-searchBtn.addEventListener("click", function () {
-  let searchTerm = searchInput.value.toLowerCase();
-  let rows = table.querySelectorAll("tbody tr");
-
-  for (let i = 0; i < rows.length; i++) {
-    let row = rows[i];
-    let studentname = row.querySelector("td:nth-child(1)").textContent.toLowerCase();
-    let fathername = row.querySelector("td:nth-child(2)").textContent.toLowerCase();
-    let studentID = row.querySelector("td:nth-child(4)").textContent.toLowerCase();
-    let searchRowBy = studentname.includes(searchTerm) || fathername.includes(searchTerm) || studentID.includes(searchTerm);
-    row.style.display = searchRowBy ? "" : "none";
-  }
-});
-
-function sortTable() {
-  const tbody = document.querySelector("table tbody");
-  const rows = Array.from(tbody.querySelectorAll("tr"));
-
-  rows.sort((a, b) => {
-    const nameA = a.querySelector("td:nth-child(1)").textContent.toLowerCase();
-    const nameB = b.querySelector("td:nth-child(1)").textContent.toLowerCase();
-    const fatherA = a.querySelector("td:nth-child(2)").textContent.toLowerCase();
-    const fatherB = b.querySelector("td:nth-child(2)").textContent.toLowerCase();
-    const idA = a.querySelector("td:nth-child(4)").textContent.toLowerCase();
-    const idB = b.querySelector("td:nth-child(4)").textContent.toLowerCase();
-
-    if (nameA < nameB) return -1;
-    if (nameA > nameB) return 1;
-    if (fatherA < fatherB) return -1;
-    if (fatherA > fatherB) return 1;
-    if (idA < idB) return -1;
-    if (idA > idB) return 1;
+    const searchInput = document.getElementById("search");
+    const table = document.querySelector("table");
+    // function to show table when search input is empty
+    function showTable() {
+      let rows = table.querySelectorAll("tbody tr");
+      for (let i = 0; i < rows.length; i++) {
+        let row = rows[i];
+        row.style.display = "";
+      }
+    }
+    searchBtn.addEventListener("click", function () {
+      let searchTerm = searchInput.value.toLowerCase();
+      let rows = table.querySelectorAll("tbody tr");
+      for (let i = 0; i < rows.length; i++) {
+        let row = rows[i];
+        let studentName = row.querySelector("td:nth-child(1)").textContent.toLowerCase();
+        let fatherName = row.querySelector("td:nth-child(2)").textContent.toLowerCase();
+        let studentID = row.querySelector("td:nth-child(4)").textContent.toLowerCase();
+        let searchRowBy = studentName.includes(searchTerm) || fatherName.includes(searchTerm) || studentID.includes(searchTerm)
+        row.style.display = searchRowBy ? "" : "none";
+      }
+    });
+    // add event listener to search input to show table when empty
+    searchInput.addEventListener("input", function () {
+      if (searchInput.value === "") {
+        showTable();
+      }
+    });
+// sort
+const sortSelect = document.getElementById("sort-select")
+sortSelect.addEventListener('change', () => {
+  let sortType = sortSelect.value;
+  let rows = Array.from(table.querySelectorAll('tbody tr'));
+  rows.sort((rowA, rowB) => {
+    let valueA = rowA.querySelector(`td:nth-child(${sortType === 'name' ? 1 : sortType === 'father-name' ? 2 : 4})`).textContent.toLowerCase();
+    let valueB = rowB.querySelector(`td:nth-child(${sortType === 'name' ? 1 : sortType === 'father-name' ? 2 : 4})`).textContent.toLowerCase();
+    if (valueA < valueB) return -1;
+    if (valueA > valueB) return 1;
     return 0;
+  });
+  rows.map((row) => {
+    table.querySelector('tbody').appendChild(row);
+  });
 });
 
-rows.forEach(row => tbody.appendChild(row));
-}
